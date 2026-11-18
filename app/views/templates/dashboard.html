@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MartenSmart - Gestão da Confeitaria</title>
+    <!-- Ícones FontAwesome e Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e83e8c;
+            --primary-hover: #d63384;
+            --secondary: #6c757d;
+            --bg-light: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-dark: #212529;
+            --border-color: #e9ecef;
+            
+            /* Status Colors */
+            --status-pendente: #ffc107;
+            --status-aprovado: #0d6efd;
+            --status-enviado: #198754;
+            --status-falha: #dc3545;
+            --status-cancelado: #6c757d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); display: flex; min-height: 100vh; }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .sidebar .brand { font-size: 1.4rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .nav-item a { text-decoration: none; color: var(--secondary); padding: 12px 15px; border-radius: 8px; display: flex; align-items: center; gap: 12px; font-weight: 500; transition: 0.3s; }
+        .nav-item.active a, .nav-item a:hover { background: #ffe6f0; color: var(--primary); }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .header-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .btn-primary { background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        /* Dashboard Metrics Cards */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .metric-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .metric-info h3 { font-size: 1.8rem; font-weight: 700; }
+        .metric-info p { color: var(--secondary); font-size: 0.85rem; }
+        .metric-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+        /* Tables & Content Cards */
+        .content-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 20px; margin-bottom: 25px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        th { color: var(--secondary); font-weight: 600; }
+
+        /* Status Badges */
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: #fff; display: inline-block; margin-bottom: 4px; }
+        .badge-pendente { background: var(--status-pendente); color: #212529; }
+        .badge-aprovado { background: var(--status-aprovado); }
+        .badge-enviado { background: var(--status-enviado); }
+        .badge-falha { background: var(--status-falha); }
+        .badge-cancelado { background: var(--status-cancelado); }
+
+        /* Form Layout */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.85rem; font-weight: 500; color: var(--secondary); }
+        .form-group input, .form-group textarea, .form-group select { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; }
+
+        /* Action Buttons in Table */
+        .action-btn { background: none; border: none; cursor: pointer; color: var(--secondary); margin-right: 8px; font-size: 1.1rem; transition: 0.2s; }
+        .action-btn:hover { color: var(--primary); }
+        .action-btn.delete-btn:hover { color: var(--status-falha); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand"><i class="fa-solid fa-cake-candles"></i> Confeiteiro Pro</div>
+        <ul class="nav-menu">
+            <li class="nav-item active"><a href="#"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="#"><i class="fa-solid fa-users"></i> Clientes</a></li>
+            <li class="nav-item"><a href="#"><i class="fa-solid fa-paper-plane"></i> Mensagens</a></li>
+            <li class="nav-item"><a href="#"><i class="fa-solid fa-gear"></i> Configurações</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header-title">
+            <h2>PAINEL DE GESTÃO DE CLIENTES DELICIAS DA ELI</h2>
+        </div>
+
+        <!-- 1. MÉTRICAS / DASHBOARD -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3 id="total-pendentes">{{ pending_events|length if pending_events else 0 }}</h3>
+                    <p>Pendentes de Aprovação</p>
+                </div>
+                <div class="metric-icon" style="background: #fff3cd; color: #856404;"><i class="fa-solid fa-clock"></i></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3 id="total-aprovados">{{ events|length if events else 0 }}</h3>
+                    <p>Total de Eventos</p>
+                </div>
+                <div class="metric-icon" style="background: #cff4fc; color: #055160;"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h3 id="total-enviados">{{ clients|length if clients else 0 }}</h3>
+                    <p>Total de Clientes</p>
+                </div>
+                <div class="metric-icon" style="background: #d1e7dd; color: #0f5132;"><i class="fa-solid fa-users"></i></div>
+            </div>
+        </div>
+
+        <!-- 2. REGISTRAR CLIENTE E CONFIGURAR ANTECEDÊNCIA -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-user-plus"></i> Registrar Cliente</h3>
+            </div>
+            <form id="form-cliente">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nome-cliente">Nome do Cliente</label>
+                        <input type="text" id="nome-cliente" placeholder="Ex: Maria Oliveira" required minlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="email-cliente">E-mail do Cliente</label>
+                        <input type="email" id="email-cliente" placeholder="exemplo@dominio.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone-cliente">WhatsApp / Telefone</label>
+                        <input type="text" id="phone-cliente" placeholder="(51) 99999-9999" required>
+                    </div>
+                </div>
+
+                <h4 style="font-size: 0.95rem; margin-top: 15px; margin-bottom: 10px; color: var(--primary);">
+                    <i class="fa-regular fa-calendar-check"></i> Configurar Evento e Lembrete
+                </h4>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="event-title">Título do Evento</label>
+                        <input type="text" id="event-title" placeholder="Ex: Aniversário">
+                    </div>
+                    <div class="form-group">
+                        <label for="event-date">Data do Evento</label>
+                        <input type="date" id="event-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="advance-days">Aviso Prévio (Dias Antes)</label>
+                        <select id="advance-days">
+                            <option value="1">1 dia antes</option>
+                            <option value="3">3 dias antes</option>
+                            <option value="7" selected>7 dias antes</option>
+                            <option value="15">15 dias antes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="custom-message">Mensagem Personalizada (Opcional)</label>
+                    <textarea id="custom-message" rows="2" placeholder="Ex: Olá! O seu bolo especial já está agendado?"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary" style="margin-top: 15px;">
+                    <i class="fa-solid fa-floppy-disk"></i> Salvar Registro
+                </button>
+            </form>
+        </div>
+
+        <!-- 3. MENSAGENS GERADAS POR IA (AGUARDANDO APROVAÇÃO) -->
+        <div class="content-card" style="border-left: 4px solid var(--status-pendente);">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> Mensagens Pendentes de Aprovação</h3>
+                <button type="button" onclick="gerarMensagensIA(event)" class="btn-primary" style="background: #6f42c1; border: none; padding: 8px 16px; font-size: 0.85rem;">
+                    <i class="fa-solid fa-robot"></i> Gerar Mensagens com IA Agora
+                </button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Evento</th>
+                        <th>Data Evento</th>
+                        <th>Mensagem Sugerida</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if pending_events %}
+                        {% for event in pending_events %}
+                        <tr>
+                            <td>
+                                <strong>{{ event.client.name if event.client else 'N/A' }}</strong><br>
+                                <small style="color: var(--secondary);">{{ event.client.phone if event.client else '' }}</small>
+                            </td>
+                            <td>{{ event.title }}</td>
+                            <td>{{ event.event_date.strftime('%d/%m/%Y') if event.event_date else 'Sem data' }}</td>
+                            <td style="max-width: 320px; white-space: pre-line; font-size: 0.85rem; background: #fffdf0; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba;">
+                                {{ event.custom_message or 'Mensagem sendo processada pela IA...' }}
+                            </td>
+                            <td>
+                                <button class="btn-primary" onclick="aprovarEEnviar({{ event.id }})" style="padding: 8px 14px; font-size: 0.8rem; background: #198754;">
+                                    <i class="fa-solid fa-paper-plane"></i> Aprovar & Enviar
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--secondary); padding: 20px;">
+                                Nenhuma mensagem aguardando aprovação no momento.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 4. GESTÃO E LISTA DE CLIENTES -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-users"></i> Clientes Cadastrados</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Telefone (WhatsApp)</th>
+                        <th>Agendamentos</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-mensagens">
+                    {% for client in clients %}
+                    <tr>
+                        <td>#{{ client.id }}</td>
+                        <td><strong>{{ client.name }}</strong></td>
+                        <td>{{ client.email }}</td>
+                        <td>{{ client.phone }}</td>
+                        <td>
+                            {% if client.events %}
+                                {% for event in client.events %}
+                                    <span class="badge {% if event.status == 'sent' %}badge-enviado{% else %}badge-pendente{% endif %}">
+                                        <i class="fa-regular fa-bell"></i>
+                                        {{ event.title }}: {{ event.event_date.strftime('%d/%m/%Y') if event.event_date else 'Sem data' }}
+                                        ({{ event.advance_days }}d antes)
+                                    </span><br>
+                                {% endfor %}
+                            {% else %}
+                                <span style="color: var(--secondary); font-style: italic;">Sem eventos</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="action-btn delete-btn" title="Excluir Cliente" onclick="excluirCliente({{ client.id }}, '{{ client.name }}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--secondary); padding: 25px;">
+                            Nenhum cliente cadastrado no momento.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+    // 1. Cadastrar Cliente e Evento via JSON (Alinhado com FastAPI)
+    document.getElementById('form-cliente').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) submitBtn.disabled = true;
+
+        try {
+            // Cadastra Cliente
+            const clientData = {
+                name: document.getElementById('nome-cliente').value,
+                email: document.getElementById('email-cliente').value,
+                phone: document.getElementById('phone-cliente').value
+            };
+
+            const clientResponse = await fetch('/clients', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clientData)
+            });
+
+            const clientText = await clientResponse.text();
+
+            if (!clientResponse.ok) {
+                let errorDetail = clientText;
+                try {
+                    const errorJson = JSON.parse(clientText);
+                    errorDetail = errorJson.detail || JSON.stringify(errorJson);
+                } catch (e) {}
+                throw new Error(`[Status ${clientResponse.status}] ${errorDetail}`);
+            }
+
+            const newClient = JSON.parse(clientText);
+
+            // Cadastra Evento se a data estiver informada
+            const eventDateVal = document.getElementById('event-date').value;
+            if (eventDateVal) {
+                const eventData = {
+                    title: document.getElementById('event-title').value || "Aniversário",
+                    event_date: eventDateVal,
+                    advance_days: parseInt(document.getElementById('advance-days').value) || 7,
+                    custom_message: document.getElementById('custom-message').value || null,
+                    client_id: newClient.id
+                };
+
+                const eventResponse = await fetch('/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                });
+
+                const eventText = await eventResponse.text();
+
+                if (!eventResponse.ok) {
+                    let errorDetail = eventText;
+                    try {
+                        const errorJson = JSON.parse(eventText);
+                        errorDetail = errorJson.detail || JSON.stringify(errorJson);
+                    } catch (e) {}
+                    throw new Error(`[Cliente criado, mas falhou agendamento - Status ${eventResponse.status}] ${errorDetail}`);
+                }
+            }
+
+            alert('Registro salvo com sucesso!');
+            window.location.reload();
+
+        } catch (error) {
+            console.error("Erro na operação:", error);
+            alert('Falha na operação: ' + error.message);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
+    });
+
+    // 2. Excluir Cliente (DELETE)
+    async function excluirCliente(clientId, clientName) {
+        if (!confirm(`Tem certeza que deseja excluir o cliente "${clientName}" e todos os seus agendamentos?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/clients/${clientId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+
+            alert('Cliente e agendamentos excluídos com sucesso!');
+            window.location.reload();
+        } catch (error) {
+            console.error("Erro ao excluir:", error);
+            alert('Erro ao excluir cliente: ' + error.message);
+        }
+    }
+
+    // 3. Aprovar e Enviar Mensagem pelo WhatsApp Meta Cloud API
+    async function aprovarEEnviar(eventId) {
+        if (!confirm('Deseja aprovar e enviar esta mensagem via WhatsApp agora?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/events/${eventId}/approve-and-send`, {
+                method: 'POST'
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.detail || 'Falha ao enviar mensagem pelo WhatsApp.');
+            }
+
+            alert('Mensagem enviada com sucesso!');
+            window.location.reload();
+        } catch (error) {
+            console.error("Erro ao aprovar:", error);
+            alert('Erro ao disparar mensagem: ' + error.message);
+        }
+    }
+
+    // 4. Disparar Geração de Mensagens por IA sob demanda
+    async function gerarMensagensIA(event) {
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando IA...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/events/trigger-scheduler', { 
+                method: 'POST' 
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Erro na requisição ao servidor.');
+            }
+
+            alert('Mensagens analisadas e geradas com sucesso pela IA!');
+            window.location.reload();
+        } catch (error) {
+            console.error("Erro ao rodar IA:", error);
+            alert('Falha ao gerar mensagens: ' + error.message);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+    </script>
+</body>
+</html>
