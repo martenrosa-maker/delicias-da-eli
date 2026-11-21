@@ -26,35 +26,44 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: var(--bg-light); color: var(--text-dark); display: flex; min-height: 100vh; }
+        body { background-color: var(--bg-light); color: var(--text-dark); display: flex; min-height: 100vh; overflow-x: hidden; }
 
         /* Sidebar Navigation */
-        .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-        .sidebar .brand { font-size: 1.4rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; gap: 20px; flex-shrink: 0; }
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; }
+        .sidebar .brand { font-size: 1.35rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .menu-toggle { display: none; background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 1.2rem; color: var(--primary); cursor: pointer; }
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; flex: 1; }
         .nav-item a { text-decoration: none; color: var(--secondary); padding: 12px 15px; border-radius: 8px; display: flex; align-items: center; gap: 12px; font-weight: 500; transition: 0.3s; }
         .nav-item.active a, .nav-item a:hover { background: #ffe6f0; color: var(--primary); }
+        .nav-item.logout-item { margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 10px; }
+        .nav-item.logout-item a { color: #dc3545; }
+        .nav-item.logout-item a:hover { background: #f8d7da; color: #b02a37; }
 
         /* Main Content Area */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .header-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .btn-primary { background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; width: 100%; max-width: 100%; }
+        .header-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
+        .header-title h2 { font-size: 1.4rem; line-height: 1.3; }
+        .btn-primary { background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
         .btn-primary:hover { background: var(--primary-hover); }
 
         /* Dashboard Metrics Cards */
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .metric-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .metric-info h3 { font-size: 1.8rem; font-weight: 700; }
         .metric-info p { color: var(--secondary); font-size: 0.85rem; }
-        .metric-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .metric-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
 
         /* Tables & Content Cards */
-        .content-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 20px; margin-bottom: 25px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .content-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 20px; margin-bottom: 25px; width: 100%; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .card-header h3 { font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
         
-        table { width: 100%; border-collapse: collapse; }
+        /* Wrapper Responsivo para Tabelas */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 620px; }
         th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
-        th { color: var(--secondary); font-weight: 600; }
+        th { color: var(--secondary); font-weight: 600; white-space: nowrap; }
 
         /* Status Badges */
         .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: #fff; display: inline-block; margin-bottom: 4px; }
@@ -68,31 +77,69 @@
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 0.85rem; font-weight: 500; color: var(--secondary); }
-        .form-group input, .form-group textarea, .form-group select { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; outline: none; font-size: 0.95rem; }
 
         /* Action Buttons in Table */
-        .action-btn { background: none; border: none; cursor: pointer; color: var(--secondary); margin-right: 8px; font-size: 1.1rem; transition: 0.2s; }
+        .action-btn { background: none; border: none; cursor: pointer; color: var(--secondary); margin-right: 8px; font-size: 1.1rem; transition: 0.2s; padding: 6px; }
         .action-btn:hover { color: var(--primary); }
         .action-btn.delete-btn:hover { color: var(--status-falha); }
+
+        /* Regras Responsivas para Celular e Tablet (<= 768px) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 14px 18px;
+                gap: 10px;
+            }
+            .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
+            .nav-menu { display: none; margin-top: 8px; }
+            .nav-menu.open { display: flex; }
+            .nav-item.logout-item { margin-top: 4px; }
+
+            .main-content { padding: 16px; }
+            .header-title h2 { font-size: 1.15rem; }
+
+            .metrics-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+            .metric-card { padding: 16px; }
+
+            .content-card { padding: 15px; margin-bottom: 18px; }
+            .card-header { flex-direction: column; align-items: stretch; }
+            .card-header .btn-primary { width: 100%; }
+
+            .form-grid { grid-template-columns: 1fr; }
+            #form-cliente button[type="submit"] { width: 100%; }
+
+            th, td { padding: 10px; font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
 
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="brand"><i class="fa-solid fa-cake-candles"></i> Confeiteiro Pro</div>
-        <ul class="nav-menu">
-            <li class="nav-item active"><a href="#"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
-            <li class="nav-item"><a href="#"><i class="fa-solid fa-users"></i> Clientes</a></li>
-            <li class="nav-item"><a href="#"><i class="fa-solid fa-paper-plane"></i> Mensagens</a></li>
-            <li class="nav-item"><a href="#"><i class="fa-solid fa-gear"></i> Configurações</a></li>
+        <div class="sidebar-header">
+            <div class="brand"><i class="fa-solid fa-cake-candles"></i> Delícias da Eli</div>
+            <button type="button" class="menu-toggle" onclick="toggleMenu()" aria-label="Abrir Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        <ul class="nav-menu" id="nav-menu">
+            <li class="nav-item active"><a href="/dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="#secao-clientes"><i class="fa-solid fa-users"></i> Clientes</a></li>
+            <li class="nav-item"><a href="#secao-mensagens"><i class="fa-solid fa-paper-plane"></i> Mensagens</a></li>
+            <li class="nav-item"><a href="/docs" target="_blank"><i class="fa-solid fa-code"></i> API Docs</a></li>
+            <li class="nav-item logout-item"><a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Sair do Sistema</a></li>
         </ul>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
         <div class="header-title">
-            <h2>PAINEL DE GESTÃO DE CLIENTES DELICIAS DA ELI</h2>
+            <h2>PAINEL DE GESTÃO DE CLIENTES DELÍCIAS DA ELI</h2>
         </div>
 
         <!-- 1. MÉTRICAS / DASHBOARD -->
@@ -176,109 +223,118 @@
         </div>
 
         <!-- 3. MENSAGENS GERADAS POR IA (AGUARDANDO APROVAÇÃO) -->
-        <div class="content-card" style="border-left: 4px solid var(--status-pendente);">
+        <div class="content-card" id="secao-mensagens" style="border-left: 4px solid var(--status-pendente);">
             <div class="card-header">
                 <h3><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary);"></i> Mensagens Pendentes de Aprovação</h3>
-                <button type="button" onclick="gerarMensagensIA(event)" class="btn-primary" style="background: #6f42c1; border: none; padding: 8px 16px; font-size: 0.85rem;">
+                <button type="button" onclick="gerarMensagensIA(event)" class="btn-primary" style="background: #6f42c1; border: none; padding: 10px 16px; font-size: 0.85rem;">
                     <i class="fa-solid fa-robot"></i> Gerar Mensagens com IA Agora
                 </button>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Evento</th>
-                        <th>Data Evento</th>
-                        <th>Mensagem Sugerida</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if pending_events %}
-                        {% for event in pending_events %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
                         <tr>
-                            <td>
-                                <strong>{{ event.client.name if event.client else 'N/A' }}</strong><br>
-                                <small style="color: var(--secondary);">{{ event.client.phone if event.client else '' }}</small>
-                            </td>
-                            <td>{{ event.title }}</td>
-                            <td>{{ event.event_date.strftime('%d/%m/%Y') if event.event_date else 'Sem data' }}</td>
-                            <td style="max-width: 320px; white-space: pre-line; font-size: 0.85rem; background: #fffdf0; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba;">
-                                {{ event.custom_message or 'Mensagem sendo processada pela IA...' }}
-                            </td>
-                            <td>
-                                <button class="btn-primary" onclick="aprovarEEnviar({{ event.id }})" style="padding: 8px 14px; font-size: 0.8rem; background: #198754;">
-                                    <i class="fa-solid fa-paper-plane"></i> Aprovar & Enviar
-                                </button>
-                            </td>
+                            <th>Cliente</th>
+                            <th>Evento</th>
+                            <th>Data Evento</th>
+                            <th>Mensagem Sugerida</th>
+                            <th>Ação</th>
                         </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: var(--secondary); padding: 20px;">
-                                Nenhuma mensagem aguardando aprovação no momento.
-                            </td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% if pending_events %}
+                            {% for event in pending_events %}
+                            <tr>
+                                <td>
+                                    <strong>{{ event.client.name if event.client else 'N/A' }}</strong><br>
+                                    <small style="color: var(--secondary);">{{ event.client.phone if event.client else '' }}</small>
+                                </td>
+                                <td>{{ event.title }}</td>
+                                <td>{{ event.event_date.strftime('%d/%m/%Y') if event.event_date else 'Sem data' }}</td>
+                                <td style="min-width: 240px; max-width: 320px; white-space: pre-line; font-size: 0.85rem; background: #fffdf0; padding: 10px; border-radius: 6px; border: 1px solid #ffeeba;">
+                                    {{ event.custom_message or 'Mensagem sendo processada pela IA...' }}
+                                </td>
+                                <td>
+                                    <button class="btn-primary" onclick="aprovarEEnviar({{ event.id }})" style="padding: 8px 14px; font-size: 0.8rem; background: #198754; white-space: nowrap;">
+                                        <i class="fa-solid fa-paper-plane"></i> Aprovar & Enviar
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--secondary); padding: 20px;">
+                                    Nenhuma mensagem aguardando aprovação no momento.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- 4. GESTÃO E LISTA DE CLIENTES -->
-        <div class="content-card">
+        <div class="content-card" id="secao-clientes">
             <div class="card-header">
                 <h3><i class="fa-solid fa-users"></i> Clientes Cadastrados</h3>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>Telefone (WhatsApp)</th>
-                        <th>Agendamentos</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="tabela-mensagens">
-                    {% for client in clients %}
-                    <tr>
-                        <td>#{{ client.id }}</td>
-                        <td><strong>{{ client.name }}</strong></td>
-                        <td>{{ client.email }}</td>
-                        <td>{{ client.phone }}</td>
-                        <td>
-                            {% if client.events %}
-                                {% for event in client.events %}
-                                    <span class="badge {% if event.status == 'sent' %}badge-enviado{% else %}badge-pendente{% endif %}">
-                                        <i class="fa-regular fa-bell"></i>
-                                        {{ event.title }}: {{ event.event_date.strftime('%d/%m/%Y') if event.event_date else 'Sem data' }}
-                                        ({{ event.advance_days }}d antes)
-                                    </span><br>
-                                {% endfor %}
-                            {% else %}
-                                <span style="color: var(--secondary); font-style: italic;">Sem eventos</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <button class="action-btn delete-btn" title="Excluir Cliente" onclick="excluirCliente({{ client.id }}, '{{ client.name }}')">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: var(--secondary); padding: 25px;">
-                            Nenhum cliente cadastrado no momento.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Telefone (WhatsApp)</th>
+                            <th>Agendamentos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-mensagens">
+                        {% for client in clients %}
+                        <tr>
+                            <td>#{{ client.id }}</td>
+                            <td><strong>{{ client.name }}</strong></td>
+                            <td>{{ client.email }}</td>
+                            <td style="white-space: nowrap;">{{ client.phone }}</td>
+                            <td>
+                                {% if client.events %}
+                                    {% for event in client.events %}
+                                        <span class="badge {% if event.status == 'sent' %}badge-enviado{% else %}badge-pendente{% endif %}">
+                                            <i class="fa-regular fa-bell"></i>
+                                            {{ event.title }}: {{ event.event_date.strftime('%d/%m/%Y') if event.event_date else 'Sem data' }}
+                                            ({{ event.advance_days }}d antes)
+                                        </span><br>
+                                    {% endfor %}
+                                {% else %}
+                                    <span style="color: var(--secondary); font-style: italic;">Sem eventos</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="action-btn delete-btn" title="Excluir Cliente" onclick="excluirCliente({{ client.id }}, '{{ client.name }}')">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--secondary); padding: 25px;">
+                                Nenhum cliente cadastrado no momento.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
     <script>
+    // Menu hambúrguer no celular
+    function toggleMenu() {
+        document.getElementById('nav-menu').classList.toggle('open');
+    }
+
     // 1. Cadastrar Cliente e Evento via JSON (Alinhado com FastAPI)
     document.getElementById('form-cliente').addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -288,7 +344,6 @@
         if (submitBtn) submitBtn.disabled = true;
 
         try {
-            // Cadastra Cliente
             const clientData = {
                 name: document.getElementById('nome-cliente').value,
                 email: document.getElementById('email-cliente').value,
@@ -314,7 +369,6 @@
 
             const newClient = JSON.parse(clientText);
 
-            // Cadastra Evento se a data estiver informada
             const eventDateVal = document.getElementById('event-date').value;
             if (eventDateVal) {
                 const eventData = {

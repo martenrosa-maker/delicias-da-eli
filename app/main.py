@@ -1,20 +1,24 @@
 import os
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-import logging
+from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
 
 # Define o caminho absoluto para o arquivo .env na raiz do projeto
 BASE_DIR = Path(__file__).resolve().parent.parent
 env_path = BASE_DIR / ".env"
 
-# Força o carregamento do .env indicando o caminho explícito
-load_dotenv(dotenv_path=env_path, override=True)
+# Carrega o .env local caso exista (sem sobrescrever variáveis já definidas no Render)
+load_dotenv(dotenv_path=env_path, override=False)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("uvicorn")
 
+from app.config.settings import settings
 from app.controllers import client_controller, event_controller
 from app.views import dashboard_view
 from app.database.session import engine
@@ -29,6 +33,29 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Configura pasta de templates (verifica app/views/templates ou app/templates)
+templates_dir = BASE_DIR / "app" / "views" / "templates"
+if not templates_dir.exists():
+    templates_dir = BASE_DIR / "app" / "templates"
+templates = Jinja2Templates(directory=str(templates_dir))
+
+# Middleware global de proteção de rotas: exige login para acessar qualquer página/API protegida
+@app.middleware("http")
+async def auth_guard_middleware(request: Request, call_next):
+    public_paths = ("/login", "/logout", "/static", "/favicon.ico")
+    path = request.url.path
+
+    if path.startswith(public_paths):
+        return await call_next(request)
+
+    if not request.session.get("authenticated"):
+        return RedirectResponse(url="/login", status_code=302)
+
+    return await call_next(request)
+
+# Ativa sessões assinadas por cookie (deve ficar abaixo do auth_guard_middleware para executar antes dele)
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+
 static_dir = BASE_DIR / "app" / "views" / "static"
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
@@ -36,6 +63,7 @@ if static_dir.exists():
 app.include_router(client_controller.router)
 app.include_router(event_controller.router)
 app.include_router(dashboard_view.router)
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -56,6 +84,40 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Erro ao iniciar o agendador automático: {str(e)}")
 
+
 @app.get("/")
-async def root():
-    return {"message": "API Delícias da Eli operando normalmente. Acesse /dashboard para o painel."}
+async def root(request: Request):
+    if request.session.get("authenticated"):
+        return RedirectResponse(url="/dashboard", status_code=302)
+    return RedirectResponse(url="/login", status_code=302)
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    if request.session.get("authenticated"):
+        return RedirectResponse(url="/dashboard", status_code=302)
+    return templates.TemplateResponse("login.html", {"request": request, "error": None})
+
+
+@app.post("/login", response_class=HTMLResponse)
+async def login_submit(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+):
+    if username == settings.ADMIN_USER and password == settings.ADMIN_PASSWORD:
+        request.session["authenticated"] = True
+        request.session["user"] = username
+        return RedirectResponse(url="/dashboard", status_code=302)
+
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request, "error": "Usuário ou senha inválidos."},
+        status_code=401,
+    )
+
+
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/login", status_code=302)
