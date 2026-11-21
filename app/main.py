@@ -96,8 +96,8 @@ async def root(request: Request):
 async def login_page(request: Request):
     if request.session.get("authenticated"):
         return RedirectResponse(url="/dashboard", status_code=302)
-    return templates.TemplateResponse("login.html", {"request": request, "error": None})
-
+    #return templates.TemplateResponse("login.html", {"request": request, "error": None})
+    return templates.TemplateResponse(request, "login.html", {"error": None})
 
 @app.post("/login", response_class=HTMLResponse)
 async def login_submit(
@@ -111,10 +111,11 @@ async def login_submit(
         return RedirectResponse(url="/dashboard", status_code=302)
 
     return templates.TemplateResponse(
+        request,
         "login.html",
-        {"request": request, "error": "Usuário ou senha inválidos."},
+        {"error": "Usuário ou senha inválidos."},
         status_code=401,
-    )
+)
 
 
 @app.get("/logout")
